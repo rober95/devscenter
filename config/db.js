@@ -1,5 +1,5 @@
-import { mongoURI } from './keys.js';
-import mongoose from 'mongoose';
+const { mongoURI } = require('./keys');
+const mongoose = require('mongoose');
 
 const connectDB = async () => {
   const conn = await mongoose.connect(mongoURI, {
@@ -12,4 +12,4 @@ const connectDB = async () => {
   console.log(`MongoDB Connected: ${conn.connection.host}`.cyan.underline.bold);
 };
 
-export default connectDB;
+module.exports = connectDB;

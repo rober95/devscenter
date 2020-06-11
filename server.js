@@ -1,12 +1,13 @@
-import express from 'express';
-import color from 'colors';
+const express = require('express');
+const color = require('colors');
+const passport = require('passport');
 
-import connectDB from './config/db.js';
+const connectDB = require('./config/db');
 
 // Route files
-import { router as users } from './routes/api/users.js';
-import { router as profile } from './routes/api/profile.js';
-import { router as posts } from './routes/api/posts.js';
+const users = require('./routes/api/users');
+const profile = require('./routes/api/profile');
+const posts = require('./routes/api/posts');
 
 const app = express();
 
@@ -17,7 +18,11 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.get('/', (req, res) => res.send('Hello'));
+// Passport middleware
+app.use(passport.initialize());
+
+// Passport Config
+require('./config/passport')(passport);
 
 // Mount routers
 app.use('/api/users', users);

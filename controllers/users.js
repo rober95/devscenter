@@ -1,15 +1,15 @@
-import asyncHandler from '../middleware/async.js';
-import gravatar from 'gravatar';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { secretOrKey } from '../config/keys.js';
+const asyncHandler = require('../middleware/async');
+const gravatar = require('gravatar');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { secretOrKey } = require('../config/keys.js');
 
-import User from '../models/User.js';
+const User = require('../models/User');
 
 // @route   POST api/users/register
 // @desc    Register
 // @access  Public
-export const registerUser = asyncHandler(async (req, res, next) => {
+exports.registerUser = asyncHandler(async (req, res, next) => {
   let user = await User.findOne({ email: req.body.email });
 
   if (user) {
@@ -39,7 +39,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 // @route   POST api/users/login
 // @desc    Login User / Return JWT
 // @access  Public
-export const login = asyncHandler(async (req, res, next) => {
+exports.login = asyncHandler(async (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
 
@@ -66,4 +66,11 @@ export const login = asyncHandler(async (req, res, next) => {
   jwt.sign(payload, secretOrKey, { expiresIn: '6h' }, (err, token) => {
     res.json({ success: true, token: 'Bearer ' + token });
   });
+});
+
+// @route   GET api/users/current
+// @desc    Return current user
+// @access  Private
+exports.currentUser = asyncHandler(async (req, res, next) => {
+  res.json(req.user);
 });
