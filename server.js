@@ -1,28 +1,39 @@
 import express from 'express';
-import mongoose from 'mongoose';
+import color from 'colors';
 
+import connectDB from './config/db.js';
+
+// Route files
 import { router as users } from './routes/api/users.js';
 import { router as profile } from './routes/api/profile.js';
 import { router as posts } from './routes/api/posts.js';
 
 const app = express();
 
-// DB Config
-import { mongoURI } from './config/keys.js';
+// Connect to Database
+connectDB();
 
-// Connect to MongoDB
-mongoose
-  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error(err));
+// Body parser
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => res.send('Hello'));
 
-// Use Routes
+// Mount routers
 app.use('/api/users', users);
 app.use('/api/profile', profile);
 app.use('/api/posts', posts);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(
+  PORT,
+  console.log(`Server running on port ${PORT}`.yellow.bold)
+);
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err, promise) => {
+  console.log(`Error: ${err.message}`.red);
+  // Close server & exit process
+  server.close(() => process.exit(1));
+});
