@@ -1,7 +1,10 @@
-import User from '../models/User.js';
 import asyncHandler from '../middleware/async.js';
 import gravatar from 'gravatar';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { secretOrKey } from '../config/keys.js';
+
+import User from '../models/User.js';
 
 // @route   POST api/users/register
 // @desc    Register
@@ -26,8 +29,6 @@ export const registerUser = asyncHandler(async (req, res, next) => {
     password: req.body.password,
   });
 
-  console.log('req.body:', req.body);
-
   const salt = await bcrypt.genSalt(10);
   newUser.password = await bcrypt.hash(newUser.password, salt);
   user = await newUser.save();
@@ -45,6 +46,7 @@ export const login = asyncHandler(async (req, res, next) => {
   // Find user by email
   const user = await User.findOne({ email });
 
+  // Check for user
   if (!user) {
     return res.status(404).json({ email: 'User not found' });
   }
@@ -55,6 +57,13 @@ export const login = asyncHandler(async (req, res, next) => {
   if (!isMatch) {
     return res.status(400).json({ password: 'Password incorrect' });
   }
+  // User & Password matched
 
-  res.json({ msg: 'Success' });
+  // Create JWT Payload
+  const payload = { id: user.id, name: user.name, avatar: user.avatar };
+
+  // Sign token
+  jwt.sign(payload, secretOrKey, { expiresIn: '6h' }, (err, token) => {
+    res.json({ success: true, token: 'Bearer ' + token });
+  });
 });
