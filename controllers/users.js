@@ -4,16 +4,28 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { secretOrKey } = require('../config/keys.js');
 
+// Load Input Validation
+const validateRegisterInput = require('../validation/register');
+const validateLoginInput = require('../validation/login');
+
 const User = require('../models/User');
 
 // @route   POST api/users/register
 // @desc    Register
 // @access  Public
 exports.registerUser = asyncHandler(async (req, res, next) => {
+  const { errors, isValid } = validateRegisterInput(req.body);
+
+  // Check validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   let user = await User.findOne({ email: req.body.email });
 
   if (user) {
-    return res.status(400).json({ email: 'Email already exists' });
+    errors.email = 'Email already exists';
+    return res.status(400).json(errors);
   }
 
   const avatar = gravatar.url(req.body.email, {
@@ -40,6 +52,13 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
 // @desc    Login User / Return JWT
 // @access  Public
 exports.login = asyncHandler(async (req, res, next) => {
+  const { errors, isValid } = validateLoginInput(req.body);
+
+  // Check validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   const email = req.body.email;
   const password = req.body.password;
 
@@ -48,14 +67,16 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   // Check for user
   if (!user) {
-    return res.status(404).json({ email: 'User not found' });
+    errors.email = 'User not found';
+    return res.status(404).json(errors);
   }
 
   // Check Password
   const isMatch = await bcrypt.compare(password, user.password);
 
   if (!isMatch) {
-    return res.status(400).json({ password: 'Password incorrect' });
+    errors.password = 'Password incorrect';
+    return res.status(400).json(errors);
   }
   // User & Password matched
 
