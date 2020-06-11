@@ -2,6 +2,8 @@ const asyncHandler = require('../middleware/async');
 
 // Load Validation
 const validateProfileInput = require('../validation/profile');
+const validateExperienceInput = require('../validation/experience');
+const validateEducationInput = require('../validation/education');
 
 // Load Profile & User Model
 const Profile = require('../models/Profile');
@@ -136,4 +138,140 @@ exports.createUserProfile = asyncHandler(async (req, res, next) => {
     profile = await new Profile(profileFields).save();
     res.json(profile);
   }
+});
+
+// @route   POST api/profile/experience
+// @desc    Add experience to profile
+// @access  Private
+exports.addExperience = asyncHandler(async (req, res, next) => {
+  const { errors, isValid } = validateExperienceInput(req.body);
+
+  // Check validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  let profile = await Profile.findOne({ user: req.user.id });
+
+  if (!profile) {
+    errors.noprofile = 'There is no profile for this user';
+    return res.status(404).json(errors);
+  }
+
+  const newExp = {
+    title: req.body.title,
+    company: req.body.company,
+    location: req.body.location,
+    from: req.body.from,
+    to: req.body.to,
+    current: req.body.current,
+    description: req.body.description,
+  };
+
+  // Add to exp array
+  profile.experience.unshift(newExp);
+
+  profile = await profile.save();
+
+  res.json(profile);
+});
+
+// @route   POST api/profile/education
+// @desc    Add education to profile
+// @access  Private
+exports.addEducation = asyncHandler(async (req, res, next) => {
+  const { errors, isValid } = validateEducationInput(req.body);
+
+  // Check validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  let profile = await Profile.findOne({ user: req.user.id });
+
+  if (!profile) {
+    errors.noprofile = 'There is no profile for this user';
+    return res.status(404).json(errors);
+  }
+
+  const newEdu = {
+    school: req.body.school,
+    degree: req.body.degree,
+    fieldofstudy: req.body.fieldofstudy,
+    from: req.body.from,
+    to: req.body.to,
+    current: req.body.current,
+    description: req.body.description,
+  };
+
+  // Add to exp array
+  profile.education.unshift(newEdu);
+
+  profile = await profile.save();
+
+  res.json(profile);
+});
+
+// @route   DELETE api/profile/experience/:exp_id
+// @desc    Delete experience from profile
+// @access  Private
+exports.deleteExperience = asyncHandler(async (req, res, next) => {
+  let profile = await Profile.findOne({ user: req.user.id });
+
+  if (!profile) {
+    errors.noprofile = 'There is no profile for this user';
+    return res.status(404).json(errors);
+  }
+
+  // Get remove index
+  const removeIndex = profile.experience
+    .map(item => item.id)
+    .indexOf(req.params.exp_id);
+
+  // Splice out of array
+  profile.experience.splice(removeIndex, 1);
+
+  profile = await profile.save();
+
+  res.json(profile);
+});
+
+// @route   DELETE api/profile/education/:edu_id
+// @desc    Delete education from profile
+// @access  Private
+exports.deleteEducation = asyncHandler(async (req, res, next) => {
+  let profile = await Profile.findOne({ user: req.user.id });
+
+  if (!profile) {
+    errors.noprofile = 'There is no profile for this user';
+    return res.status(404).json(errors);
+  }
+
+  // Get remove index
+  const removeIndex = profile.education
+    .map(item => item.id)
+    .indexOf(req.params.edu_id);
+
+  // Splice out of array
+  profile.education.splice(removeIndex, 1);
+
+  profile = await profile.save();
+
+  res.json(profile);
+});
+
+// @route   DELETE api/profile/
+// @desc    Delete user and profile
+// @access  Private
+exports.deleteProfile = asyncHandler(async (req, res, next) => {
+  const profile = await Profile.findOneAndDelete({ user: req.user.id });
+
+  if (!profile) {
+    errors.noprofile = 'There is no profile for this user';
+    return res.status(404).json(errors);
+  }
+
+  await User.findOneAndDelete({ _id: req.user.id });
+
+  res.json({ success: true });
 });
