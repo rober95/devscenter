@@ -5,6 +5,9 @@ const passport = require('passport');
 const {
   currentUserProfile,
   createUserProfile,
+  getProfileByHandle,
+  getProfileById,
+  getAllProfiles,
 } = require('../../controllers/profile');
 
 // @route   GET api/profile/test
@@ -16,5 +19,11 @@ router
   .route('/')
   .get(passport.authenticate('jwt', { session: false }), currentUserProfile)
   .post(passport.authenticate('jwt', { session: false }), createUserProfile);
+
+router.get('/handle/:handle', getProfileByHandle);
+
+router.get('/user/:user_id', getProfileById);
+
+router.get('/all', getAllProfiles);
 
 module.exports = router;

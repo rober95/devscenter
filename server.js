@@ -1,7 +1,7 @@
 const express = require('express');
 const color = require('colors');
 const passport = require('passport');
-
+const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 
 // Route files
@@ -28,6 +28,8 @@ require('./config/passport')(passport);
 app.use('/api/users', users);
 app.use('/api/profile', profile);
 app.use('/api/posts', posts);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
