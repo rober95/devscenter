@@ -8,12 +8,9 @@ const {
   deletePost,
   likePost,
   unlikePost,
+  createComment,
+  deleteComment,
 } = require('../../controllers/posts');
-
-// @route   GET api/posts/test
-// @desc    Test posts route
-// @access  Public
-router.get('/test', (req, res) => res.json({ msg: 'Posts Works' }));
 
 router
   .route('/')
@@ -35,6 +32,18 @@ router.post(
   '/unlike/:id',
   passport.authenticate('jwt', { session: false }),
   unlikePost
+);
+
+router.post(
+  '/comment/:id',
+  passport.authenticate('jwt', { session: false }),
+  createComment
+);
+
+router.delete(
+  '/comment/:id/:comment_id',
+  passport.authenticate('jwt', { session: false }),
+  deleteComment
 );
 
 module.exports = router;

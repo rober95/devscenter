@@ -60,7 +60,7 @@ exports.createPost = asyncHandler(async (req, res, next) => {
 exports.deletePost = asyncHandler(async (req, res, next) => {
   const post = await Post.findById(req.params.id);
 
-  if (!post) return res.status(401).json({ postnotfound: 'No post found' });
+  if (!post) return res.status(404).json({ postnotfound: 'Post not found' });
 
   if (post.user.toString() !== req.user.id) {
     return res.status(401).json({ notauthorized: 'User not authorized' });
@@ -78,7 +78,7 @@ exports.deletePost = asyncHandler(async (req, res, next) => {
 exports.likePost = asyncHandler(async (req, res, next) => {
   const post = await Post.findById(req.params.id);
 
-  if (!post) return res.status(401).json({ postnotfound: 'No post found' });
+  if (!post) return res.status(404).json({ postnotfound: 'Post not found' });
 
   if (
     post.likes.filter(like => like.user.toString() === req.user.id).length > 0
@@ -102,7 +102,7 @@ exports.likePost = asyncHandler(async (req, res, next) => {
 exports.unlikePost = asyncHandler(async (req, res, next) => {
   const post = await Post.findById(req.params.id);
 
-  if (!post) return res.status(401).json({ postnotfound: 'No post found' });
+  if (!post) return res.status(404).json({ postnotfound: 'Post not found' });
 
   if (
     post.likes.filter(like => like.user.toString() === req.user.id).length === 0
@@ -123,4 +123,71 @@ exports.unlikePost = asyncHandler(async (req, res, next) => {
   await post.save();
 
   res.json(post);
+});
+
+// @route   POST api/posts/comment/:id
+// @desc    Add comment to post
+// @access  Private
+exports.createComment = asyncHandler(async (req, res, next) => {
+  const { errors, isValid } = validatePostInput(req.body);
+
+  // Check Validation
+  if (!isValid) {
+    // If any errors, send 400 with errors object
+    return res.status(400).json(errors);
+  }
+
+  let post = await Post.findById(req.params.id);
+
+  if (!post) return res.status(404).json({ postnotfound: 'Post not found' });
+
+  const newComment = {
+    text: req.body.text,
+    name: req.body.name,
+    user: req.user.id,
+    avatar: req.body.avatar,
+  };
+
+  // Add to comments array
+  post.comments.unshift(newComment);
+
+  post = await post.save();
+
+  res.status(201).json(post);
+});
+
+// @route   DELETE api/posts/comment/:id/:comment_id
+// @desc    Remove comment from post
+// @access  Private
+exports.deleteComment = asyncHandler(async (req, res, next) => {
+  let post = await Post.findById(req.params.id);
+
+  if (!post) return res.status(404).json({ postnotfound: 'Post not found' });
+
+  if (
+    post.comments.filter(
+      comment => comment._id.toString() === req.params.comment_id
+    ).length === 0
+  ) {
+    return res.status(404).json({ commentnotexists: 'Comment does not exist' });
+  }
+
+  if (
+    post.comments.filter(comment => comment.user.toString() === req.user.id)
+      .length === 0
+  ) {
+    return res.status(401).json({ notauthorized: 'User not authorized' });
+  }
+
+  // Get remove index
+  const removeIndex = post.comments
+    .map(item => item._id.toString())
+    .indexOf(req.params.comment_id);
+
+  // Splice comment out of array
+  post.comments.splice(removeIndex, 1);
+
+  post = await post.save();
+
+  res.status(201).json(post);
 });
