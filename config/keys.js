@@ -1,4 +1,5 @@
-exports.mongoURI =
-  'mongodb+srv://rober95:258540fc@contactkeeper-z6s6a.mongodb.net/devscenter?retryWrites=true&w=majority';
-
-exports.secretOrKey = 'someJwtSecretThingy';
+if (process.env.NODE_ENV === 'production') {
+  module.exports = require('./keys_prod');
+} else {
+  module.exports = require('./keys_dev');
+}
