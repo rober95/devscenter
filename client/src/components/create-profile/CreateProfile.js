@@ -6,7 +6,7 @@ import TextFieldGroup from '../common/TextFieldGroup';
 import TextAreaFieldGroup from '../common/TextAreaFieldGroup';
 import InputGroup from '../common/InputGroup';
 import SelectListGroup from '../common/SelectListGroup';
-import { createProfile } from '../../actions/profileActions';
+import { createProfile, getCurrentProfile } from '../../actions/profileActions';
 
 class CreateProfile extends Component {
   constructor(props) {
@@ -28,6 +28,18 @@ class CreateProfile extends Component {
       instagram: '',
       errors: {},
     };
+  }
+
+  componentDidMount() {
+    this.props.getCurrentProfile();
+  }
+
+  componentDidUpdate() {
+    if (this.props.profile.profile) {
+      if (Object.keys(this.props.profile.profile).length > 0) {
+        this.props.history.push('/dashboard');
+      }
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -236,6 +248,7 @@ CreateProfile.propTypes = {
   profile: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   createProfile: PropTypes.func.isRequired,
+  getCurrentProfile: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -243,6 +256,6 @@ const mapStateToProps = state => ({
   errors: state.errors,
 });
 
-export default connect(mapStateToProps, { createProfile })(
+export default connect(mapStateToProps, { createProfile, getCurrentProfile })(
   withRouter(CreateProfile)
 );

@@ -2,6 +2,10 @@ img {
   width: 100%;
 }
 
+.content-wrap {
+  flex: 1 0 auto;
+}
+
 .landing {
   position: relative;
   background: url('./img/showcase.jpg') no-repeat;
@@ -36,4 +40,11 @@ img {
 
 .form-control::placeholder {
   color: #bbb !important;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  height: 75px;
+  width: 100%;
 }

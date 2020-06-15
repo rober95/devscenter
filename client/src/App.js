@@ -27,6 +27,7 @@ import Posts from './components/posts/Posts';
 import Post from './components/post/Post';
 import NotFound from './components/not-found/NotFound';
 
+import './bootstrap.min.css';
 import './App.css';
 
 // Check for token
@@ -58,7 +59,7 @@ class App extends Component {
           <div className="App">
             <Navbar />
             <Route exact path="/" component={Landing} />
-            <div className="container">
+            <div className="container d-flex flex-column main-container mb-5">
               <Route exact path="/register" component={Register} />
               <Route exact path="/login" component={Login} />
               <Route exact path="/profiles" component={Profiles} />
