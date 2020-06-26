@@ -1,110 +1,91 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { registerUser } from '../../actions/authActions';
 import TextFieldGroup from '../common/TextFieldGroup';
 
-class Register extends Component {
-  constructor(params) {
-    super();
-    this.state = {
-      name: '',
-      email: '',
-      password: '',
-      password2: '',
-      errors: {},
-    };
-  }
+const Register = props => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
+  const [errors, setErrors] = useState({});
 
-  componentDidMount() {
-    if (this.props.auth.isAuthenticated) {
-      this.props.history.push('/dashboard');
+  useEffect(() => {
+    if (props.auth.isAuthenticated) {
+      props.history.push('/dashboard');
     }
-  }
+    // eslint-disable-next-line
+  }, []);
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.errors) {
-      return {
-        errors: nextProps.errors,
-      };
+  useEffect(() => {
+    if (props.errors) {
+      setErrors(props.errors);
     }
-  }
+  }, [props.errors]);
 
-  onChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
-  onSubmit = e => {
+  const onSubmit = e => {
     e.preventDefault();
 
-    const newUser = {
-      name: this.state.name,
-      email: this.state.email,
-      password: this.state.password,
-      password2: this.state.password2,
-    };
+    const newUser = { name, email, password, password2 };
 
-    this.props.registerUser(newUser, this.props.history);
+    props.registerUser(newUser, props.history);
   };
 
-  render() {
-    const { errors } = this.state;
-
-    return (
-      <div className="register">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-8 m-auto">
-              <h1 className="display-4 text-center">Sign Up</h1>
-              <p className="lead text-center">Create your DevsCenter account</p>
-              <form onSubmit={this.onSubmit}>
-                <TextFieldGroup
-                  placeholder="Name"
-                  name="name"
-                  value={this.state.name}
-                  onChange={this.onChange}
-                  error={errors.name}
-                />
-                <TextFieldGroup
-                  placeholder="Email Address"
-                  name="email"
-                  type="email"
-                  value={this.state.email}
-                  onChange={this.onChange}
-                  error={errors.email}
-                  info="This site uses Gravatar so if you want a profile image, use
-                  a Gravatar email"
-                />
-                <TextFieldGroup
-                  placeholder="Password"
-                  type="password"
-                  name="password"
-                  value={this.state.password}
-                  onChange={this.onChange}
-                  error={errors.password}
-                />
-                <TextFieldGroup
-                  placeholder="Confirm Password"
-                  type="password"
-                  name="password2"
-                  value={this.state.password2}
-                  onChange={this.onChange}
-                  error={errors.password2}
-                />
-                <input
-                  type="submit"
-                  className="btn btn-info btn-block mt-4"
-                  value="Sign Up"
-                />
-              </form>
-            </div>
+  return (
+    <div className="register">
+      <div className="container">
+        <div className="row">
+          <div className="col-md-8 m-auto">
+            <h1 className="display-4 text-center">Sign Up</h1>
+            <p className="lead text-center">Create your DevsCenter account</p>
+            <form onSubmit={onSubmit}>
+              <TextFieldGroup
+                placeholder="Name"
+                name="name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                error={errors.name}
+              />
+              <TextFieldGroup
+                placeholder="Email Address"
+                name="email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                error={errors.email}
+                info="This site uses Gravatar so if you want a profile image, use
+                a Gravatar email"
+              />
+              <TextFieldGroup
+                placeholder="Password"
+                type="password"
+                name="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                error={errors.password}
+              />
+              <TextFieldGroup
+                placeholder="Confirm Password"
+                type="password"
+                name="password2"
+                value={password2}
+                onChange={e => setPassword2(e.target.value)}
+                error={errors.password2}
+              />
+              <input
+                type="submit"
+                className="btn btn-info btn-block mt-4"
+                value="Sign Up"
+              />
+            </form>
           </div>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 Register.propTypes = {
   registerUser: PropTypes.func.isRequired,

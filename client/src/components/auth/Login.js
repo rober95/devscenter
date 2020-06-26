@@ -1,97 +1,73 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { loginUser } from '../../actions/authActions';
 import TextFieldGroup from '../common/TextFieldGroup';
 
-class Login extends Component {
-  constructor(params) {
-    super();
-    this.state = {
-      email: '',
-      password: '',
-      errors: {},
-    };
-  }
+const Login = props => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({});
 
-  onChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
-  onSubmit = e => {
+  const onSubmit = e => {
     e.preventDefault();
 
-    const userData = {
-      email: this.state.email,
-      password: this.state.password,
-    };
+    const userData = { email, password };
 
-    this.props.loginUser(userData);
+    props.loginUser(userData);
   };
 
-  componentDidMount() {
-    if (this.props.auth.isAuthenticated) {
-      this.props.history.push('/dashboard');
+  useEffect(() => {
+    if (props.auth.isAuthenticated) {
+      props.history.push('/dashboard');
     }
-  }
+    // eslint-disable-next-line
+  }, [props.auth.isAuthenticated]);
 
-  componentDidUpdate() {
-    if (this.props.auth.isAuthenticated) {
-      this.props.history.push('/dashboard');
+  useEffect(() => {
+    if (props.errors) {
+      setErrors(props.errors);
     }
-  }
+  }, [props.errors]);
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.errors) {
-      return {
-        errors: nextProps.errors,
-      };
-    }
-  }
-
-  render() {
-    const { errors } = this.state;
-
-    return (
-      <div className="login">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-8 m-auto">
-              <h1 className="display-4 text-center">Log In</h1>
-              <p className="lead text-center">
-                Sign in to your DevsCenter account
-              </p>
-              <form onSubmit={this.onSubmit}>
-                <TextFieldGroup
-                  placeholder="Email Address"
-                  name="email"
-                  type="email"
-                  value={this.state.email}
-                  onChange={this.onChange}
-                  error={errors.email}
-                />
-
-                <TextFieldGroup
-                  placeholder="Password"
-                  name="password"
-                  type="password"
-                  value={this.state.password}
-                  onChange={this.onChange}
-                  error={errors.password}
-                />
-                <input
-                  type="submit"
-                  className="btn btn-info btn-block mt-4"
-                  value="Login"
-                />
-              </form>
-            </div>
+  return (
+    <div className="login">
+      <div className="container">
+        <div className="row">
+          <div className="col-md-8 m-auto">
+            <h1 className="display-4 text-center">Log In</h1>
+            <p className="lead text-center">
+              Sign in to your DevsCenter account
+            </p>
+            <form onSubmit={onSubmit}>
+              <TextFieldGroup
+                placeholder="Email Address"
+                name="email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                error={errors.email}
+              />
+              <TextFieldGroup
+                placeholder="Password"
+                name="password"
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                error={errors.password}
+              />
+              <input
+                type="submit"
+                className="btn btn-info btn-block mt-4"
+                value="Login"
+              />
+            </form>
           </div>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 Login.propTypes = {
   loginUser: PropTypes.func.isRequired,

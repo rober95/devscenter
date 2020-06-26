@@ -1,75 +1,56 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import TextAreaFieldGroup from '../common/TextAreaFieldGroup';
 import { addComment } from '../../actions/postActions';
 
-class CommentForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      text: '',
-      errors: {},
-    };
-  }
+const CommentForm = ({ errors: errorsProp, addComment, auth, postId }) => {
+  const [text, setText] = useState('');
+  const [errors, setErrors] = useState({});
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.errors) {
-      return {
-        errors: nextProps.errors,
-      };
+  useEffect(() => {
+    if (errorsProp) {
+      setErrors(errorsProp);
     }
-  }
+  }, [errorsProp]);
 
-  onSubmit = e => {
+  const onSubmit = e => {
     e.preventDefault();
 
-    const { user } = this.props.auth;
-    const { postId } = this.props;
-
     const newComment = {
-      text: this.state.text,
-      name: user.name,
-      avatar: user.avatar,
+      text,
+      name: auth.user.name,
+      avatar: auth.user.avatar,
     };
 
-    this.props.addComment(postId, newComment);
-    this.setState({ text: '' });
+    addComment(postId, newComment);
+    setText('');
   };
 
-  onChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
-  render() {
-    const { errors, text } = this.state;
-    return (
-      <div className="post-form mb-3">
-        <div className="card card-info">
-          <div className="card-header bg-info text-white">
-            Make a comment...
-          </div>
-          <div className="card-body">
-            <form onSubmit={this.onSubmit}>
-              <div className="form-group">
-                <TextAreaFieldGroup
-                  placeholder="Reply to post"
-                  name="text"
-                  value={text}
-                  onChange={this.onChange}
-                  error={errors.text}
-                />
-              </div>
-              <button type="submit" className="btn btn-dark">
-                Submit
-              </button>
-            </form>
-          </div>
+  return (
+    <div className="post-form mb-3">
+      <div className="card card-info">
+        <div className="card-header bg-info text-white">Make a comment...</div>
+        <div className="card-body">
+          <form onSubmit={onSubmit}>
+            <div className="form-group">
+              <TextAreaFieldGroup
+                placeholder="Reply to post"
+                name="text"
+                value={text}
+                onChange={e => setText(e.target.value)}
+                error={errors.text}
+              />
+            </div>
+            <button type="submit" className="btn btn-dark">
+              Submit
+            </button>
+          </form>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 CommentForm.propTypes = {
   addComment: PropTypes.func.isRequired,

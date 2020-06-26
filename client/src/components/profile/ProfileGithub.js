@@ -1,76 +1,63 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, createRef } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-class ProfileGithub extends Component {
-  constructor(props) {
-    super(props);
-    this.myRef = React.createRef();
-    this.state = {
-      clientId: '24f5ca856c7c61f1d52c',
-      clientSecret: 'ec5c20367576379a783a2f9a8e6a625f9c65edd0',
-      count: 5,
-      sort: 'created: asc',
-      repos: [],
-    };
-  }
+const ProfileGithub = ({ username }) => {
+  const myRef = createRef();
+  //eslint-disable-next-line
+  const [client_id, setClient_id] = useState(
+    process.env.REACT_APP_GITHUB_CLIENT_ID
+  ); //eslint-disable-next-line
+  const [client_secret, setClient_secret] = useState(
+    process.env.REACT_APP_GITHUB_CLIENT_SECRET
+  ); //eslint-disable-next-line
+  const [count, setCount] = useState(5); //eslint-disable-next-line
+  const [sort, setSort] = useState('created: asc');
+  const [repos, setRepos] = useState([]);
 
-  componentDidMount() {
-    const { username } = this.props;
-    const { count, sort, clientId, clientSecret } = this.state;
+  useEffect(() => {
+    (async () => {
+      const res = await fetch(
+        `https://api.github.com/users/${username}/repos?per_page=${count}&sort=${sort}`,
+        { client_id, client_secret }
+      );
+      const data = await res.json();
+      if (myRef.current) setRepos(data);
+    })(); //eslint-disable-next-line
+  }, []);
 
-    fetch(
-      `https://api.github.com/users/${username}/repos?per_page=${count}&sort=${sort}`,
-      {
-        client_id: clientId,
-        client_secret: clientSecret,
-      }
-    )
-      .then(res => res.json())
-      .then(data => {
-        if (this.myRef.current) {
-          this.setState({ repos: data });
-        }
-      })
-      .catch(err => console.log(err));
-  }
-  render() {
-    const { repos } = this.state;
-
-    const repoItems = repos.map(repo => (
-      <div key={repo.id} className="card card-body mb-2">
-        <div className="row">
-          <div className="col-md-6">
-            <h4>
-              <Link to={repo.html_url} className="text-info" target="_blank">
-                {repo.name}
-              </Link>
-            </h4>
-            <p>{repo.description}</p>
-          </div>
-          <div className="col-md-6">
-            <span className="badge badge-info mr-1">
-              Stars: {repo.stargazers_count}
-            </span>
-            <span className="badge badge-secondary mr-1">
-              Watchers: {repo.watchers_count}
-            </span>
-            <span className="badge badge-success">
-              Forks: {repo.forks_count}
-            </span>
-          </div>
+  const repoItems = repos.map(repo => (
+    <div key={repo.id} className="card card-body mb-2">
+      <div className="row">
+        <div className="col-md-6">
+          <h4>
+            <Link to={repo.html_url} className="text-info" target="_blank">
+              {repo.name}
+            </Link>
+          </h4>
+          <p>{repo.description}</p>
+        </div>
+        <div className="col-md-6">
+          <span className="badge badge-info mr-1">
+            Stars: {repo.stargazers_count}
+          </span>
+          <span className="badge badge-secondary mr-1">
+            Watchers: {repo.watchers_count}
+          </span>
+          <span className="badge badge-success">Forks: {repo.forks_count}</span>
         </div>
       </div>
-    ));
-    return (
-      <div ref={this.myRef}>
-        <hr />
-        <h3 className="mb-4">Latest GitHub Repos</h3>
-        {repoItems}
-      </div>
-    );
-  }
-}
+    </div>
+  ));
+
+  return (
+    <div ref={myRef}>
+      <hr />
+      <h3 className="mb-4">Latest GitHub Repos</h3>
+      {repoItems}
+    </div>
+  );
+};
 
 ProfileGithub.propTypes = {
   username: PropTypes.string.isRequired,
