@@ -57,34 +57,36 @@ const Navbar = ({ auth, clearCurrentProfile, logoutUser }) => {
   );
 
   return (
-    <nav className="navbar navbar-expand-sm navbar-dark bg-dark mb-4">
-      <div className="container">
-        <Link className="navbar-brand" to="/">
-          {'< '}
-          <span className="text-light">Devs</span>Center{' />'}
-        </Link>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#mobile-nav"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+    <header>
+      <nav className="navbar navbar-expand-sm navbar-dark bg-dark mb-4">
+        <div className="container">
+          <Link className="navbar-brand" to="/">
+            {'< '}
+            <span className="text-light">Devs</span>Center{' />'}
+          </Link>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#mobile-nav"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
 
-        <div className="collapse navbar-collapse" id="mobile-nav">
-          <ul className="navbar-nav mr-auto">
-            <li className="nav-item">
-              <Link className="nav-link" to="/profiles">
-                {' '}
-                Developers
-              </Link>
-            </li>
-          </ul>
+          <div className="collapse navbar-collapse" id="mobile-nav">
+            <ul className="navbar-nav mr-auto">
+              <li className="nav-item">
+                <Link className="nav-link" to="/profiles">
+                  {' '}
+                  Developers
+                </Link>
+              </li>
+            </ul>
+          </div>
+          {isAuthenticated ? authLinks : guestLinks}
         </div>
-        {isAuthenticated ? authLinks : guestLinks}
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 };
 
